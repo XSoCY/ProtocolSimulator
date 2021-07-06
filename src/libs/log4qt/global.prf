@@ -1,0 +1,130 @@
+﻿#config global parameter
+#name=global
+#label=公共变量定义
+#description=定义工程中常用的环境变量
+
+###### DO NOT MODIFY THIS ######
+INCLUDE_DIR = $$PWD/
+INCLUDEPATH += $$INCLUDE_DIR
+!win32-msvc*:QMAKE_CXXFLAGS += -std=c++1y
+PUBLIC_DIR = $$PWD/../src/libs/public
+INCLUDEPATH += $$PUBLIC_DIR
+
+CONFIG += c++11
+win32 {
+CONFIG           += debug_and_release
+CONFIG           += build_all
+}
+lessThan(QT_MAJOR_VERSION, 5): INCLUDEPATH += $$PWD/Qt4/4.$$QT_MINOR_VERSION
+
+CONFIG(debug, debug|release) {
+    BIN_DIR     = $$PWD/../debug
+} else {
+    BIN_DIR     = $$PWD/../release
+}
+OUTPUT_DIR  = $$PWD/../output
+CONFIG(debug, debug|release){
+    LIB_DIR     = $$PWD/../lib/debug
+} else {
+    LIB_DIR     = $$PWD/../lib/release
+}
+SRC_DIR     = $$PWD/../src
+DBUS_DIR    = $$PWD/../dbus
+
+DEMO_SRC_DIR    = $$PWD/../demo/graphics
+QT_TRANSLATION_DIR = $$PWD/../qt_translations
+
+LANGUAGE_DIR    = $$BIN_DIR/languages
+LIB_SRC_DIR     = $$SRC_DIR/libs
+PLUGIN_SRC_DIR  = $$SRC_DIR/plugins
+DEMO_PLUGIN_SRC_DIR = $$PWD/../demo/demo
+
+PLUGINS_DIR     = $$BIN_DIR/plugins
+
+defineTest(deployModule) {
+    DEPLOY_FILES = $$1
+    DEPLOY_DIR = $$2
+    win32:DEPLOY_DIR ~= s,/,\\,g
+
+    isEmpty(DEPLOY_DIR) {
+        return(false)
+    }
+
+    exists($$DEPLOY_DIR) {
+    } else {
+        lessThan(QT_MAJOR_VERSION, 5) {
+            win32: system(cmd /c md $$DEPLOY_DIR)
+            unix:!mac: system(mkdir $$DEPLOY_DIR)
+        } else {
+            mkpath($$DEPLOY_DIR)
+        }
+    }
+
+    for(FILE, DEPLOY_FILES) {
+        FILE = $$PWD/$$FILE
+        win32: FILE ~= s,/,\\,g
+        win32: system(cmd /c copy /y $$FILE $$DEPLOY_DIR)
+        unix:!mac: system(cp $$FILE $$DEPLOY_DIR)
+    }
+    return(true)
+}
+
+defineTest(copyFolder) {
+    SRC_FOLDER = $$1
+    DEST_FOLDER = $$2
+    SRC_FOLDER = $$PWD/$$SRC_FOLDER
+
+    win32 {
+        SRC_FOLDER ~= s,/,\\,g
+        DEST_FOLDER ~= s,/,\\,g
+    }
+
+    isEmpty(SRC_FOLDER) {
+        return(false)
+    }
+
+    isEmpty(DEST_FOLDER) {
+        return(false)
+    }
+    win32: system(cmd /c robocopy $$SRC_FOLDER $$DEST_FOLDER /e)
+#    Todo: linux copy
+    return(true)
+}
+
+deploy.target = deploy
+deploy.depends = install
+equals(TEMPLATE, "app") {
+    exists($$PLUGIN_SRC_DIR/$$TARGET/) | exists($$DEMO_PLUGIN_SRC_DIR/$$TARGET/) {
+        TARGET_DIR = $$PLUGINS_DIR/$$TARGET/
+        QTEZ_LIB_DIR = $$LIB_DIR/
+        QTEZ_DBUS_DIR = $$DBUS_DIR/
+        win32-msvc* {
+            COMMOND_COPY = $(COPY)
+        } else {
+            COMMOND_COPY = ${COPY}
+        }
+
+        win32 {
+            TARGET_DIR ~= s,/,\\,g
+            QTEZ_LIB_DIR ~= s,/,\\,g
+            QTEZ_DBUS_DIR ~= s,/,\\,g
+            WIN_QT_BIN_DIR = $$[QT_INSTALL_BINS]/
+            WIN_QT_BIN_DIR ~= s,/,\\,g
+
+            deploy.commands = "$$WIN_QT_BIN_DIR\windeployqt.exe $$TARGET_DIR"
+            deploy.commands += " | $$COMMOND_COPY $$QTEZ_DBUS_DIR\bin\dbus-1.dll $$TARGET_DIR"            
+            CONFIG(debug, debug|release) {
+                deploy.commands += " | $$COMMOND_COPY $$WIN_QT_BIN_DIR\Qt5DBusd.dll $$TARGET_DIR"
+                deploy.commands += " | $$COMMOND_COPY $$WIN_QT_BIN_DIR\Qt5Sqld.dll $$TARGET_DIR"
+                deploy.commands += " | $$COMMOND_COPY $$WIN_QT_BIN_DIR\Qt5Xmld.dll $$TARGET_DIR"
+                deploy.commands += " | $$COMMOND_COPY $$QTEZ_LIB_DIR\*.dll $$TARGET_DIR"
+            } else {
+                deploy.commands += " | $$COMMOND_COPY $$WIN_QT_BIN_DIR\Qt5DBus.dll $$TARGET_DIR"
+                deploy.commands += " | $$COMMOND_COPY $$WIN_QT_BIN_DIR\Qt5Sql.dll $$TARGET_DIR"
+                deploy.commands += " | $$COMMOND_COPY $$WIN_QT_BIN_DIR\Qt5Xml.dll $$TARGET_DIR"
+                deploy.commands += " | $$COMMOND_COPY $$QTEZ_LIB_DIR\*.dll $$TARGET_DIR"
+            }
+        }
+    }
+}
+QMAKE_EXTRA_TARGETS += deploy

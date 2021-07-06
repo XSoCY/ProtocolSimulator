@@ -1,0 +1,8 @@
+{
+    "bundle.symbolic_name" : "CommunicationService",
+    "bundle.activator" : true,
+    "authors" : [ "xuejh" ],
+    "bundle.version" : "1.0.0",
+    "bundle.description" : "与外部通讯服务插件",
+    "update_log" :""
+}

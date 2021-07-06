@@ -1,0 +1,12 @@
+﻿#ifndef LIBLOG4QT_GLOBAL_H
+#define LIBLOG4QT_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(LIBLOG4QT_LIBRARY)
+#  define LIBLOG4QTSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define LIBLOG4QTSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // LIBLOG4QT_GLOBAL_H

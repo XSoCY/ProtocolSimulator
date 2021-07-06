@@ -1,0 +1,14 @@
+{
+  "bundle.symbolic_name" : "TestWidget",
+  "servicename":"界面测试模块",
+  "bundle.activator" : true,
+  "authors" : [ "wjy" ],
+  "bundle.version" : "1.0.0",
+  "bundle.description" : "This bundle provides an awesome service",
+  "update_log" :"
+        2021-01-03 update by wjy
+        1.dadada.
+        2.dsadasd.
+        3.dsadasdsa
+    "
+}

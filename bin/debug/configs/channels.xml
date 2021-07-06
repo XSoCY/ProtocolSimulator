@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<configuration>
+	<!-- 
+		Type类型：
+		0-无
+		1-TCP客户端
+		2-TCP服务端
+		3-UDP点对点
+		4-UDP组播
+		5-UDP广播
+		6-串口通讯
+	-->
+	<channel id="Equipment" localip="192.168.2.80" localport="19999" remoteip="192.168.2.80" remoteport="5555" type="1" timeout="1000" />
+	<channel id="TTCCombination" localip="192.168.2.80" localport="18888" remoteip="192.168.2.80" remoteport="6666" type="1" timeout="100" />
+	<channel id="TTCFrontCompter" localip="192.168.2.80" localport="17777" remoteip="192.168.2.80" remoteport="7777" type="1" timeout="100" />
+	<!-- 
+		baudrate-波特率：1200;2400;4800;9600;19200;38400;57600;115200
+		databits-数据位：5;6;7;8
+		flowsontrol-流控制：0-无控制；1-硬件控制；2-软件控制
+		sarity-校验位：0-NoParity; 2-EvenParity; 3-OddParity; 4-SpaceParity; 5-MarkParity;
+		stopsits-停止位：1-1停止位;2-2停止位;3-1.5停止位
+	-->
+</configuration>
+
