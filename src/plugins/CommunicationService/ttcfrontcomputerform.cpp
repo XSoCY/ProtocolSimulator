@@ -3,6 +3,7 @@
 #include "ICommunicationService.h"
 #include "communication_define.h"
 #include "CommonDefine/commonprotocolstruct.h"
+#include "worker.h"
 #include <QDebug>
 TTCFrontComputerForm::TTCFrontComputerForm(BundleContext context,QWidget *parent) :
     QWidget(parent),m_context(context),
@@ -10,6 +11,7 @@ TTCFrontComputerForm::TTCFrontComputerForm(BundleContext context,QWidget *parent
 {
     ui->setupUi(this);
     setWindowTitle("测发控前端计算机");
+    initThread();
 }
 
 TTCFrontComputerForm::~TTCFrontComputerForm()
@@ -133,7 +135,34 @@ int TTCFrontComputerForm::sendData(const QByteArray &data)
     }
 }
 
+void TTCFrontComputerForm::initThread()
+{
+    Worker *worker = new Worker;
+    worker->moveToThread(&m_workerThread);
+    connect(&m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(this, &TTCFrontComputerForm::startAutoSend, worker, &Worker::startAutoSend);
+    connect(this, &TTCFrontComputerForm::stopAutoSend, worker, &Worker::stopAutoSend);
+    connect(worker, &Worker::sendData, this, &TTCFrontComputerForm::on_pBtnSend_clicked, Qt::DirectConnection);
+    m_workerThread.start();
+}
+
 void TTCFrontComputerForm::on_pBtnClear_clicked()
 {
     ui->labelRecv->clear();
+}
+
+void TTCFrontComputerForm::on_checkBox_send_clicked(bool checked)
+{
+    if(checked) {
+        emit startAutoSend(ui->spinBox->value());
+    } else {
+        emit stopAutoSend();
+    }
+}
+
+void TTCFrontComputerForm::on_spinBox_valueChanged(int arg1)
+{
+    if(ui->checkBox_send->isChecked()) {
+        emit startAutoSend(arg1);
+    }
 }

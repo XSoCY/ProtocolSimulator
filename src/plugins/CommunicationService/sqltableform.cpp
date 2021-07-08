@@ -6,6 +6,7 @@
 #include "ICommunicationService.h"
 #include "communication_define.h"
 #include "util/CConverter.h"
+#include "worker.h"
 
 SQLTableForm::SQLTableForm(BundleContext context,QWidget *parent) :
     QWidget(parent),m_context(context),
@@ -31,6 +32,8 @@ SQLTableForm::SQLTableForm(BundleContext context,QWidget *parent) :
     ui->tableView_2->setModel(m_model2);
     initView1();
     connect(ui->tableView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
+
+    initThread();
 }
 
 SQLTableForm::~SQLTableForm()
@@ -46,6 +49,17 @@ bool SQLTableForm::initView1()
     m_model1->select();
     //ui->tableView->hideColumn(0); // don't show the ID
     return true;
+}
+
+void SQLTableForm::initThread()
+{
+    Worker *worker = new Worker;
+    worker->moveToThread(&m_workerThread);
+    connect(&m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(this, &SQLTableForm::startAutoSend, worker, &Worker::startAutoSend);
+    connect(this, &SQLTableForm::stopAutoSend, worker, &Worker::stopAutoSend);
+    connect(worker, &Worker::sendData, this, &SQLTableForm::CombFrameAndSend, Qt::DirectConnection);
+    m_workerThread.start();
 }
 
 void SQLTableForm::SQLPARATABLE(QString tablename,int tablenumber,int type)
@@ -313,4 +327,20 @@ void SQLTableForm::on_pushButton_send_clicked()
 void SQLTableForm::closeEvent(QCloseEvent *event)
 {
     this->hide();
+}
+
+void SQLTableForm::on_checkBox_send_clicked(bool checked)
+{
+    if(checked) {
+        emit startAutoSend(ui->spinBox->value());
+    } else {
+        emit stopAutoSend();
+    }
+}
+
+void SQLTableForm::on_spinBox_valueChanged(int arg1)
+{
+    if(ui->checkBox_send->isChecked()) {
+        emit startAutoSend(arg1);
+    }
 }

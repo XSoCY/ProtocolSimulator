@@ -44,7 +44,8 @@ SOURCES += \
     communication/ttccombination.cpp \
     mainwindow.cpp \
     ttccombinationform.cpp \
-    ttcfrontcomputerform.cpp
+    ttcfrontcomputerform.cpp \
+    worker.cpp
 
 HEADERS += \
     avtivator.h \
@@ -59,7 +60,8 @@ HEADERS += \
     communication/ttccombination.h \
     mainwindow.h \
     ttccombinationform.h \
-    ttcfrontcomputerform.h
+    ttcfrontcomputerform.h \
+    worker.h
 
 OTHER_FILES += \
     resources/manifest.json

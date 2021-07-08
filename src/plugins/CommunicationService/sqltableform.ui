@@ -103,8 +103,14 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QSpinBox" name="spinBox">
+         <property name="minimum">
+          <number>20</number>
+         </property>
          <property name="maximum">
           <number>99999</number>
+         </property>
+         <property name="value">
+          <number>500</number>
          </property>
         </widget>
        </item>

@@ -7,6 +7,7 @@
 #include "BundleContext.h"
 #include "IGuiService.h"
 #include "CommonDefine/commonprotocolstruct.h"
+#include <QThread>
 
 namespace Ui {
 class SQLTableForm;
@@ -41,6 +42,11 @@ public:
     explicit SQLTableForm(BundleContext context,QWidget *parent = 0);
     ~SQLTableForm();
     void slot_recv(const QByteArray byte);
+
+signals:
+    void startAutoSend(int inerval);
+    void stopAutoSend();
+
 private slots:
     void on_pushButton_clicked();
 
@@ -48,11 +54,16 @@ private slots:
 
     void on_pushButton_send_clicked();
 
+    void on_checkBox_send_clicked(bool checked);
+
+    void on_spinBox_valueChanged(int arg1);
+
 protected:
     void closeEvent(QCloseEvent *event)Q_DECL_OVERRIDE;
 
 private:
     bool initView1();
+    void initThread();
     void SQLPARATABLE(QString tablename,int tablenumber,int type);
     void CombFrameAndSend();
     void packSubFrame(QByteArray &dataRet, ParamType type);
@@ -62,6 +73,7 @@ private:
 private:
     Ui::SQLTableForm *ui;
     QSqlDatabase m_db;
+    QThread m_workerThread;
     QSqlTableModel *m_model1;//indextable
     QSqlTableModel *m_model2;//
     //组帧时候查询数据库使用
@@ -75,7 +87,6 @@ private:
     BundleContext m_context;
 protected slots:
     void slotRowDoubleClicked(const QModelIndex &index);
-
 
 };
 
